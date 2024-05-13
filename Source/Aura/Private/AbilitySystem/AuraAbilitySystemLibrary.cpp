@@ -1,4 +1,4 @@
-// Copyright Druid Mechanics
+
 
 
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
