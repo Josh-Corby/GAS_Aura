@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "Abilities/Tasks/AbilityTask.h"
+#include "GameplayTagContainer.h"
 #include "TargetDataUnderMouse.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMouseTargetDataSignature, const FGameplayAbilityTargetDataHandle&, DataHandle);
@@ -20,6 +21,7 @@ public:
 
 private:
 	virtual void Activate() override;
-
 	void SendMouseCursorData();
+
+	void OnTargetDataReplicatedCallback(const FGameplayAbilityTargetDataHandle& DataHandle, FGameplayTag ActivationTag);
 };
