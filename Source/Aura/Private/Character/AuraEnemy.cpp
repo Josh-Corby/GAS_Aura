@@ -15,6 +15,20 @@ AAuraEnemy::AAuraEnemy()
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
 }
 
+void AAuraEnemy::BeginPlay()
+{
+	Super::BeginPlay();
+	InitAbilityActorInfo();
+}
+
+void AAuraEnemy::InitAbilityActorInfo()
+{
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
+
+	InitializeDefaultAttributes();
+}
+
 void AAuraEnemy::HighlightActor()
 {
 	GetMesh()->SetRenderCustomDepth(true);
@@ -32,16 +46,4 @@ void AAuraEnemy::UnHighlightActor()
 int32 AAuraEnemy::GetPlayerLevel()
 {
 	return Level;
-}
-
-void AAuraEnemy::BeginPlay()
-{
-	Super::BeginPlay();
-	InitAbilityActorInfo();
-}
-
-void AAuraEnemy::InitAbilityActorInfo()
-{
-	AbilitySystemComponent->InitAbilityActorInfo(this, this);
-	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 }
