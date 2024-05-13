@@ -1,3 +1,5 @@
+// Copyright Druid Mechanics
+
 #pragma once
 
 #include "CoreMinimal.h"
@@ -6,8 +8,8 @@
 #include "AuraProjectile.generated.h"
 
 class UNiagaraSystem;
-class UProjectileMovementComponent;
 class USphereComponent;
+class UProjectileMovementComponent;
 
 UCLASS()
 class AURA_API AAuraProjectile : public AActor
@@ -29,26 +31,25 @@ protected:
 
 	UFUNCTION()
 	void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
 private:
 
 	UPROPERTY(EditDefaultsOnly)
 	float LifeSpan = 15.f;
 
 	bool bHit = false;
-
+	
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<USphereComponent> Sphere;
 
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<USoundBase> LoopingSound;
-
-	UPROPERTY();
-	TObjectPtr<UAudioComponent> LoopingSoundComponent;
+	TObjectPtr<UNiagaraSystem> ImpactEffect;
 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<USoundBase> ImpactSound;
 
 	UPROPERTY(EditAnywhere)
-	TObjectPtr<UNiagaraSystem> ImpactEffect;
+	TObjectPtr<USoundBase> LoopingSound;
+
+	UPROPERTY()
+	TObjectPtr<UAudioComponent> LoopingSoundComponent;
 };
