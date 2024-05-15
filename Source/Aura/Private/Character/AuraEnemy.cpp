@@ -4,6 +4,7 @@
 #include "Character/AuraEnemy.h"
 
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "Components/WidgetComponent.h"
 #include "Aura/Aura.h"
@@ -22,25 +23,6 @@ AAuraEnemy::AAuraEnemy()
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
-}
-
-void AAuraEnemy::HighlightActor()
-{
-	GetMesh()->SetRenderCustomDepth(true);
-	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
-	Weapon->SetRenderCustomDepth(true);
-	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
-}
-
-void AAuraEnemy::UnHighlightActor()
-{
-	GetMesh()->SetRenderCustomDepth(false);
-	Weapon->SetRenderCustomDepth(false);
-}
-
-int32 AAuraEnemy::GetPlayerLevel()
-{
-	return Level;
 }
 
 void AAuraEnemy::BeginPlay()
@@ -82,4 +64,28 @@ void AAuraEnemy::InitAbilityActorInfo()
 	Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent)->AbilityActorInfoSet();
 
 	InitializeDefaultAttributes();
+}
+
+void AAuraEnemy::InitializeDefaultAttributes() const
+{
+	UAuraAbilitySystemLibrary::InitializeDefaultAttributes(this, CharacterClass, Level, AbilitySystemComponent);
+}
+
+void AAuraEnemy::HighlightActor()
+{
+	GetMesh()->SetRenderCustomDepth(true);
+	GetMesh()->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+	Weapon->SetRenderCustomDepth(true);
+	Weapon->SetCustomDepthStencilValue(CUSTOM_DEPTH_RED);
+}
+
+void AAuraEnemy::UnHighlightActor()
+{
+	GetMesh()->SetRenderCustomDepth(false);
+	Weapon->SetRenderCustomDepth(false);
+}
+
+int32 AAuraEnemy::GetPlayerLevel()
+{
+	return Level;
 }
