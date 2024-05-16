@@ -1,15 +1,15 @@
-
-
-
 #include "Character/AuraEnemy.h"
 
 #include "Aura/Public/AuraGameplayTags.h"
+#include "Aura/Aura.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/AuraAttributeSet.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "AI/AuraAIController.h"
+#include "AIModule/Classes/BehaviorTree/BlackboardComponent.h"
+#include "AIModule/Classes/BehaviorTree/BehaviorTree.h"
 #include "Components/WidgetComponent.h"
-#include "Aura/Aura.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "UI/Widget/AuraUserWidget.h"
 
 
@@ -25,6 +25,17 @@ AAuraEnemy::AAuraEnemy()
 
 	HealthBar = CreateDefaultSubobject<UWidgetComponent>("HealthBar");
 	HealthBar->SetupAttachment(GetRootComponent());
+}
+
+void AAuraEnemy::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (!HasAuthority()) return;
+	AuraAIController = Cast<AAuraAIController>(NewController);
+
+	AuraAIController->GetBlackboardComponent()->InitializeBlackboard(*BehaviorTree->BlackboardAsset);
+	AuraAIController->RunBehaviorTree(BehaviorTree);
 }
 
 void AAuraEnemy::BeginPlay()
