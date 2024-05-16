@@ -1,6 +1,7 @@
 
 #include "AbilitySystem/ExecCalc/ExecCalc_Damage.h"
 #include "AbilitySystemComponent.h"
+#include "AuraAbilityTypes.h"
 #include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/AuraAttributeSet.h"
 #include "AbilitySystem/Data/CharacterClassInfo.h"
@@ -64,6 +65,8 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	EvalParams.SourceTags = SourceTags;
 	EvalParams.TargetTags = TargetTags;
 
+	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
+
 	// Get Damage Set by Caller Magnitude
 	float Damage = Spec.GetSetByCallerMagnitude(FAuraGameplayTags::Get().Damage);
 
@@ -115,10 +118,14 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	// Target Crit Resistance Reduces Source Crit Chance
 	const float EffectiveCritChance = SourceCritChance - TargetCritResistance * CriticalHitResistanceCoefficient;
-	const bool bCrit = FMath::RandRange(1, 100) < EffectiveCritChance;
 
 	// Double damage plus a bonus if critical hit
+	const bool bCrit = FMath::RandRange(1, 100) < EffectiveCritChance;
 	Damage = bCrit ? Damage * 2.f + SourceCritDamage : Damage;
+
+	// Set Aura Effect Context Bools
+	UAuraAbilitySystemLibrary::SetIsBlockedHit(EffectContextHandle, bBlocked);
+	UAuraAbilitySystemLibrary::SetIsCriticalHit(EffectContextHandle, bCrit);
 
 	const FGameplayModifierEvaluatedData EvaluatedData(UAuraAttributeSet::GetIncomingDamageAttribute(), EGameplayModOp::Additive, Damage);
 	OutExecutionOutput.AddOutputModifier(EvaluatedData);
