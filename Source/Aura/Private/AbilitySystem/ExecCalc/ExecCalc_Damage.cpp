@@ -67,9 +67,6 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 	FGameplayEffectContextHandle EffectContextHandle = Spec.GetContext();
 
-	// Get Damage Set by Caller Magnitude
-	float Damage = Spec.GetSetByCallerMagnitude(FAuraGameplayTags::Get().Damage);
-
 	float TargetBlockChance = 0.f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(DamageStatics().BlockChanceDef, EvalParams, TargetBlockChance);
 	TargetBlockChance = FMath::Max<float>(TargetBlockChance, 0.f);
@@ -105,6 +102,14 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 	const float ArmorPenetrationCoefficient = ArmorPenetrationCurve->Eval(SourceLevel);
 	const float EffectiveArmorCoefficient = EffectiveArmorCurve->Eval(TargetLevel);
 	const float CriticalHitResistanceCoefficient = CriticalHitResistanceCurve->Eval(TargetLevel);
+
+	// Get Damage Set by Caller Magnitude
+	float Damage = 0.f;
+	for (FGameplayTag DamageTypeTag : FAuraGameplayTags::Get().DamageTypes)
+	{
+		const float DamageTypeValue = Spec.GetSetByCallerMagnitude(DamageTypeTag);
+		Damage += DamageTypeValue;
+	}
 
 	// If Block, half the damage.
 	const bool bBlocked = FMath::RandRange(1, 100) < TargetBlockChance;
