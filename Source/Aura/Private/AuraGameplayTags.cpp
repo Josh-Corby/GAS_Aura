@@ -120,6 +120,15 @@ void FAuraGameplayTags::InitializeNativeGameplayTags()
 		);
 
 	/*
+	* Ability Tags
+	*/
+
+	GameplayTags.Abilities_Attack = UGameplayTagsManager::Get().AddNativeGameplayTag(
+		FName("Abilities.Attack"),
+		FString("Attack Ability Tag")
+	);
+
+	/*
 	 * Damage Tags
 	 */
 
