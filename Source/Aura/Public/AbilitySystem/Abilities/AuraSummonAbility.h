@@ -15,8 +15,11 @@ class AURA_API UAuraSummonAbility : public UAuraGameplayAbility
 	GENERATED_BODY()
 	
 public:
-	UFUNCTION(BlueprintCallable)
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Summoning")
 	TArray<FVector> GetSpawnLocations() const;
+
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category = "Summoning")
+	TSubclassOf<APawn> GetRandomMinionClass() const;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Summoning")
 	int32 NumMinions = 5;
