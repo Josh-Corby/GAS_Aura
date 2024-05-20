@@ -241,4 +241,5 @@ private:
 
 	void SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const;
 	void ShowFloatingText(const FEffectProperties& Props, float Damage, bool bInIsBlockedHit, bool bInIsCriticalHit) const;
+	void SendXPEvent(const FEffectProperties& Props);
 };
