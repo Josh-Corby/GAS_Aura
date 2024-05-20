@@ -55,6 +55,8 @@ public:
 	FGameplayTag Abilities_Summon;
 	FGameplayTag Abilities_Fire_FireBolt;
 
+	FGameplayTag Cooldown_Fire_FireBolt;
+
 	FGameplayTag CombatSocket_Weapon;
 	FGameplayTag CombatSocket_RightHand;
 	FGameplayTag CombatSocket_LeftHand;
@@ -64,7 +66,6 @@ public:
 	FGameplayTag Montage_Attack_2;
 	FGameplayTag Montage_Attack_3;
 	FGameplayTag Montage_Attack_4;
-
 
 	TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
 
