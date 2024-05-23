@@ -20,6 +20,11 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 {
 	AAuraPlayerState* AuraPlayerState = CastChecked<AAuraPlayerState>(PlayerState);
 	AuraPlayerState->OnXPChangedDelegate.AddUObject(this, &UOverlayWidgetController::OnXPChanged);
+	AuraPlayerState->OnLevelChangedDelegate.AddLambda(
+		[this](int32 NewLevel)
+		{
+			OnPlayerLevelChangedDelegate.Broadcast(NewLevel);
+		});
 
 	const UAuraAttributeSet* AuraAttributeSet = CastChecked<UAuraAttributeSet>(AttributeSet);
 
@@ -27,29 +32,25 @@ void UOverlayWidgetController::BindCallbacksToDependencies()
 			[this](const FOnAttributeChangeData& Data)
 			{
 				OnHealthChanged.Broadcast(Data.NewValue);
-			}
-		);
+			});
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->GetMaxHealthAttribute()).AddLambda(
 			[this](const FOnAttributeChangeData& Data)
 			{
 				OnMaxHealthChanged.Broadcast(Data.NewValue);
-			}
-		);
+			});
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->GetManaAttribute()).AddLambda(
 			[this](const FOnAttributeChangeData& Data)
 			{
 				OnManaChanged.Broadcast(Data.NewValue);
-			}
-		);
+			});
 
 	AbilitySystemComponent->GetGameplayAttributeValueChangeDelegate(AuraAttributeSet->GetMaxManaAttribute()).AddLambda(
 			[this](const FOnAttributeChangeData& Data)
 			{
 				OnMaxManaChanged.Broadcast(Data.NewValue);
-			}
-		);
+			});
 
 	if (UAuraAbilitySystemComponent* AuraASC = Cast<UAuraAbilitySystemComponent>(AbilitySystemComponent))
 	{
