@@ -65,16 +65,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Data")
 	TObjectPtr<UAbilityInfo> AbilityInfo;
 
-	UPROPERTY(BlueprintReadOnly, Category="WidgetController")
+	UPROPERTY(BlueprintReadOnly, Category= "WidgetController")
 	TObjectPtr<APlayerController> PlayerController;
 
-	UPROPERTY(BlueprintReadOnly, Category="WidgetController")
+	UPROPERTY(BlueprintReadOnly, Category= "WidgetController")
 	TObjectPtr<APlayerState> PlayerState;
 
-	UPROPERTY(BlueprintReadOnly, Category="WidgetController")
+	UPROPERTY(BlueprintReadOnly, Category= "WidgetController")
 	TObjectPtr<UAbilitySystemComponent> AbilitySystemComponent;
 
-	UPROPERTY(BlueprintReadOnly, Category="WidgetController")
+	UPROPERTY(BlueprintReadOnly, Category= "WidgetController")
 	TObjectPtr<UAttributeSet> AttributeSet;
 
 	UPROPERTY(BlueprintReadOnly, Category = "WidgetController")
