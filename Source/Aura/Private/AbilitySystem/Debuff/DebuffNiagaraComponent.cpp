@@ -28,13 +28,14 @@ void UDebuffNiagaraComponent::BeginPlay()
 			}));
 
 	}
-
-	CombatInterface->GetOnDeathDelegate().AddDynamic(this, &UDebuffNiagaraComponent::OnOwnerDeath);
 }
 
 void UDebuffNiagaraComponent::DebuffTagChanged(const FGameplayTag CallbackTag, int32 NewCount)
 {
-	if (NewCount > 0) Activate();
+	const bool bOwnerValid = IsValid(GetOwner());
+	const bool bOwnerAlive = GetOwner()->Implements<UCombatInterface>() && ICombatInterface::Execute_IsDead(GetOwner());
+
+	if (NewCount > 0 && bOwnerValid && bOwnerAlive) Activate();
 	else Deactivate();
 }
 
