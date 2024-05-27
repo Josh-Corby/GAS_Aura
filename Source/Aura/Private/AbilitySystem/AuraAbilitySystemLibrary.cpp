@@ -209,7 +209,7 @@ float UAuraAbilitySystemLibrary::GetDebuffFrequency(const FGameplayEffectContext
 {
 	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
 	{
-		return AuraEffectContext->GetDebuffDuration();
+		return AuraEffectContext->GetDebuffFrequency();
 	}
 	return 0.0f;
 }
