@@ -3,6 +3,7 @@
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
 #include "Aura/Aura.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "AuraGameplayTags.h"
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -10,6 +11,10 @@
 AAuraCharacterBase::AAuraCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = false;
+
+	BurnDebuffComponent = CreateDefaultSubobject<UDebuffNiagaraComponent>("BurnDebuffComponent");
+	BurnDebuffComponent->SetupAttachment(GetRootComponent());
+	BurnDebuffComponent->DebuffTag = FAuraGameplayTags::Get().Debuff_Burn;
 
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECC_Camera, ECR_Ignore);
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
@@ -35,6 +40,12 @@ UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
 void AAuraCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();	
+
+	AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Burn, EGameplayTagEventType::NewOrRemoved).AddLambda(
+		[](const FGameplayTag CallbackTag, int32 NewCount)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Burn Applied"));
+		});
 }
 
 void AAuraCharacterBase::Die()
@@ -113,6 +124,16 @@ ECharacterClass AAuraCharacterBase::GetCharacterClass_Implementation() const
 	return CharacterClass;
 }
 
+FOnASCRegistered AAuraCharacterBase::GetOnASCRegisteredDelegate()
+{
+	return OnASCRegistered;
+}
+
+FOnDeath AAuraCharacterBase::GetOnDeathDelegate()
+{
+	return OnDeath;
+}
+
 
 void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 {
@@ -130,6 +151,7 @@ void AAuraCharacterBase::MulticastHandleDeath_Implementation()
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	Dissolve();
 	bDead = true;
+	OnDeath.Broadcast(this);
 }
 
 void AAuraCharacterBase::ApplyEffectToSelf(TSubclassOf<UGameplayEffect> GameplayEffectClass, float Level) const
