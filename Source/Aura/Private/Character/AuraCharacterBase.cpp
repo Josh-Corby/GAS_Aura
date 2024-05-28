@@ -144,7 +144,8 @@ FOnASCRegistered AAuraCharacterBase::GetOnASCRegisteredDelegate()
 	return OnASCRegistered;
 }
 
-FOnDeath AAuraCharacterBase::GetOnDeathDelegate()
+
+FOnDeath& AAuraCharacterBase::GetOnDeathDelegate()
 {
 	return OnDeath;
 }
