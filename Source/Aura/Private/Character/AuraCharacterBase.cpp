@@ -40,12 +40,6 @@ UAnimMontage* AAuraCharacterBase::GetHitReactMontage_Implementation()
 void AAuraCharacterBase::BeginPlay()
 {
 	Super::BeginPlay();	
-
-	AbilitySystemComponent->RegisterGameplayTagEvent(FAuraGameplayTags::Get().Debuff_Burn, EGameplayTagEventType::NewOrRemoved).AddLambda(
-		[](const FGameplayTag CallbackTag, int32 NewCount)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Burn Applied"));
-		});
 }
 
 void AAuraCharacterBase::Die(const FVector& DeathImpulse)
