@@ -68,6 +68,10 @@ public:
 	FGameplayTag Abilities_Summon;
 	FGameplayTag Abilities_Fire_FireBolt;
 	FGameplayTag Abilities_Lightning_Electrocute;
+
+	FGameplayTag Abilities_Passive_HaloOfProtection;
+	FGameplayTag Abilities_Passive_LifeSiphon;
+	FGameplayTag Abilities_Passive_ManaSiphon;
 	
 	FGameplayTag Abilities_HitReact;
 	FGameplayTag Abilities_Status_Locked;
@@ -91,15 +95,15 @@ public:
 	FGameplayTag Montage_Attack_3;
 	FGameplayTag Montage_Attack_4;
 
-	TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
-	TMap<FGameplayTag, FGameplayTag> DamageTypesToDebuffs;
-
 	FGameplayTag Effects_HitReact;
 
 	FGameplayTag Player_Block_InputPressed;
 	FGameplayTag Player_Block_InputHeld;
 	FGameplayTag Player_Block_InputReleased;
 	FGameplayTag Player_Block_CursorTrace;
+
+	TMap<FGameplayTag, FGameplayTag> DamageTypesToResistances;
+	TMap<FGameplayTag, FGameplayTag> DamageTypesToDebuffs;
 
 private:
     static FAuraGameplayTags GameplayTags;
