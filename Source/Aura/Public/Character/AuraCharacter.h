@@ -39,6 +39,9 @@ public:
 	virtual void AddToSpellPoints_Implementation(int32 InSpellPoints) override;
 	virtual int32 GetAttributePoints_Implementation() const override;
 	virtual int32 GetSpellPoints_Implementation() const override;
+	void ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial) override;
+	void HideMagicCircle_Implementation() override;
+
 	/** end Player Interface */
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
