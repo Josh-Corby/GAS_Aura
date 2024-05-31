@@ -159,6 +159,7 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 		const FGameplayEffectAttributeCaptureDefinition CaptureDef = TagsToCaptureDefs[ResistanceTypeTag];
 
 		float DamageTypeValue = Spec.GetSetByCallerMagnitude(Pair.Key, false);
+		if (DamageTypeValue <= 0) continue;
 
 		float Resistance = 0.f;
 		ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(CaptureDef, EvalParams, Resistance);
@@ -168,6 +169,12 @@ void UExecCalc_Damage::Execute_Implementation(const FGameplayEffectCustomExecuti
 
 		if (UAuraAbilitySystemLibrary::IsRadialDamage(EffectContextHandle))
 		{
+			// 1. override TakeDamage in AuraCharacterBase
+			// 2. create delegate OnDamageDelegate, broadcast damage received in TakeDamage
+			// 3. Bind lambda to OnDamageDelegate on the Victim here.
+			// 4. Call ApplyRadialDamageWithFalloff to cause damage (this will result in TakeDamage being called on the victim, which will broadcast OnDamageDelegate)
+			// 5. In lambda, set DamageTypeValue to the damage received from the broadcast
+
 			if (ICombatInterface* CombatInterface = Cast<ICombatInterface>(TargetAvatar))
 			{
 				CombatInterface->GetOnDamageDelegate().AddLambda([&](float DamageAmount) 
