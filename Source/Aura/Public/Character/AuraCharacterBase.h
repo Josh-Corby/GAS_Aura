@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -26,11 +24,10 @@ public:
 
 	AAuraCharacterBase();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const;
-
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
-	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
-
 	virtual UAnimMontage* GetHitReactMontage_Implementation() override;
+	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+	UAttributeSet* GetAttributeSet() const { return AttributeSet; }
 
 	/* Combat Interface*/
 	virtual void Die(const FVector& DeathImpulse) override;
@@ -43,14 +40,16 @@ public:
 	virtual int32 GetMinionCount_Implementation() const override;
 	virtual void IncrementMinionCount_Implementation(int32 Amount) override;
 	virtual ECharacterClass GetCharacterClass_Implementation() const override;
-	virtual FOnASCRegistered GetOnASCRegisteredDelegate() override;
+	virtual FOnASCRegistered& GetOnASCRegisteredDelegate() override;
 	virtual FOnDeath& GetOnDeathDelegate() override;
+	virtual FOnDamageSignature& GetOnDamageDelegate() override;
 	virtual USkeletalMeshComponent* GetWeapon_Implementation() const override;
 	virtual void SetIsBeingShocked_Implementation(bool bInShocked) override;
 	virtual bool IsBeingShocked_Implementation() const override;
 
 	FOnASCRegistered OnASCRegistered;
 	FOnDeath OnDeath;
+	FOnDamageSignature OnDamageDelegate;
 	/* End Combat Interface*/
 
 	UFUNCTION(NetMulticast, Reliable)
