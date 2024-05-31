@@ -37,30 +37,33 @@ FString UAuraFireBolt::GetDescription(int32 Level)
 			ScaledDamage);
 	}
 
-	return FString::Printf(TEXT(
-		// Title
-		"<Title>FIRE BOLT</>\n\n"
+	else
+	{
+		return FString::Printf(TEXT(
+			// Title
+			"<Title>FIRE BOLT</>\n\n"
 
-		// Level
-		"<Small>Level: </><Level>%d</>\n"
-		// ManaCost
-		"<Small>ManaCost: </><ManaCost>%.1f</>\n"
-		// Cooldown
-		"<Small>Cooldown: </><Cooldown>%.1f</>\n\n"
+			// Level
+			"<Small>Level: </><Level>%d</>\n"
+			// ManaCost
+			"<Small>ManaCost: </><ManaCost>%.1f</>\n"
+			// Cooldown
+			"<Small>Cooldown: </><Cooldown>%.1f</>\n\n"
 
-		// Number of FireBolts
-		"<Default>Launches %d bolt of fire, exploding on impact and dealing: "
+			// Number of FireBolts
+			"<Default>Launches %d bolt of fire, exploding on impact and dealing: "
 
-		// Damage
-		"</><Damage>%d</>"
-		"<Default> fire damage with a chance to burn</>"),
+			// Damage
+			"</><Damage>%d</>"
+			"<Default> fire damage with a chance to burn</>"),
 
-		// Values
-		Level,
-		ManaCost,
-		Cooldown,
-		FMath::Min(Level, NumProjectiles),
-		ScaledDamage);
+			// Values
+			Level,
+			ManaCost,
+			Cooldown,
+			FMath::Min(Level, NumProjectiles),
+			ScaledDamage);
+	}
 }
 
 FString UAuraFireBolt::GetNextLevelDescription(int32 Level)
