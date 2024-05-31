@@ -365,6 +365,45 @@ int32 UAuraAbilitySystemLibrary::GetXPRewardForClassAndLevel(const UObject* Worl
 	return static_cast<int32>(XPReward);
 }
 
+void UAuraAbilitySystemLibrary::SetTargetEffectParamsASC(FDamageEffectParams& Params, UAbilitySystemComponent* InASC)
+{
+	Params.TargetASC = InASC;
+}
+
+void UAuraAbilitySystemLibrary::SetRadialDamageEffectParams(FDamageEffectParams& Params, bool bIsRadial, float InnerRadius, float OuterRadius, FVector Origin)
+{
+	Params.bIsRadialDamage = bIsRadial;
+	Params.RadialDamageInnerRadius = InnerRadius;
+	Params.RadialDamageOuterRadius = OuterRadius;
+	Params.RadialDamageOrigin = Origin;
+}
+
+void UAuraAbilitySystemLibrary::SetKnockbackDirection(FDamageEffectParams& Params, FVector KnockbackDirection, float Magnitude)
+{
+	KnockbackDirection.Normalize();
+	if (Magnitude <= 0.f)
+	{
+		Params.KnockbackForce = KnockbackDirection * Params.KnockbackMagnitude;
+	}
+	else
+	{
+		Params.KnockbackForce = KnockbackDirection * Magnitude;
+	}
+}
+
+void UAuraAbilitySystemLibrary::SetDeathImpulseDirection(FDamageEffectParams& Params, FVector ImpulseDirection, float Magnitude)
+{
+	ImpulseDirection.Normalize();
+	if (Magnitude <= 0.f)
+	{
+		Params.DeathImpulse = ImpulseDirection * Params.DeathImpulseMagnitude;
+	}
+	else
+	{
+		Params.KnockbackForce = ImpulseDirection * Magnitude;
+	}
+}
+
 FGameplayEffectContextHandle UAuraAbilitySystemLibrary::ApplyDamageEffect(const FDamageEffectParams& Params)
 {
 	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
