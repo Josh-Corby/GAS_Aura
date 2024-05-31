@@ -117,85 +117,6 @@ void UAuraAbilitySystemLibrary::GiveStartupAbilities(const UObject* WorldContext
 	}
 }
 
-int32 UAuraAbilitySystemLibrary::GetXPRewardForClassAndLevel(const UObject* WorldContextObject, ECharacterClass InCharacterClass, int32 InLevel)
-{
-	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
-	if (CharacterClassInfo == nullptr) return 0;
-
-	const FCharacterClassDefaultInfo& Info = CharacterClassInfo->GetClassDefaultInfo(InCharacterClass);
-	const int32 XPReward = Info.XPCurve.GetValueAtLevel(InLevel);
-	return static_cast<int32>(XPReward);
-}
-
-FGameplayEffectContextHandle UAuraAbilitySystemLibrary::ApplyDamageEffect(const FDamageEffectParams& Params)
-{
-	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
-
-	FGameplayEffectContextHandle ContextHandle = Params.SourceASC->MakeEffectContext();
-	ContextHandle.AddSourceObject(Params.SourceASC->GetAvatarActor());
-	SetDeathImpulse(ContextHandle, Params.DeathImpulse);
-	SetKnockbackForce(ContextHandle, Params.KnockbackForce);
-
-	const FGameplayEffectSpecHandle SpecHandle = Params.SourceASC->MakeOutgoingSpec(Params.DamageGameplayEffectClass, Params.AbiltyLevel, ContextHandle);
-
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, Params.DamageType, Params.BaseDamage);
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Chance, Params.DebuffChance);
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Damage, Params.DebuffDamage);
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Duration, Params.DebuffDuration);
-	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Frequency, Params.DebuffFrequency);
-
-	Params.TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
-	return ContextHandle;
-}
-
-TArray<FRotator> UAuraAbilitySystemLibrary::EvenlySpacedRotators(const FVector& Forward, const FVector& Axis, float Spread, int32 NumRotators)
-{
-	TArray<FRotator> Rotators;
-
-	const FVector LeftOfSpread = Forward.RotateAngleAxis(-Spread / 2.f, Axis);
-	const FVector RightOfSpread = Forward.RotateAngleAxis(Spread / 2.f, Axis);
-
-	if (NumRotators > 1)
-	{
-		const float DeltaSpread = Spread / (NumRotators - 1);
-		for (int32 i = 0; i < NumRotators; i++)
-		{
-			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, FVector::UpVector);
-			Rotators.Add(Direction.Rotation());
-		}
-	}
-	else
-	{
-		Rotators.Add(Forward.Rotation());
-	}
-
-	return Rotators;
-}
-
-TArray<FVector> UAuraAbilitySystemLibrary::EvenlyRotatedVectors(const FVector& Forward, const FVector& Axis, float Spread, int32 NumVectors)
-{
-	TArray<FVector> Vectors;
-
-	const FVector LeftOfSpread = Forward.RotateAngleAxis(-Spread / 2.f, Axis);
-	const FVector RightOfSpread = Forward.RotateAngleAxis(Spread / 2.f, Axis);
-
-	if (NumVectors > 1)
-	{
-		const float DeltaSpread = Spread / (NumVectors - 1);
-		for (int32 i = 0; i < NumVectors; i++)
-		{
-			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, FVector::UpVector);
-			Vectors.Add(Direction);
-		}
-	}
-	else
-	{
-		Vectors.Add(Forward);
-	}
-
-	return Vectors;
-}
-
 UCharacterClassInfo* UAuraAbilitySystemLibrary::GetCharacterClassInfo(const UObject* WorldContextObject)
 {
 	const AAuraGameModeBase* AuraGM = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
@@ -294,6 +215,41 @@ FVector UAuraAbilitySystemLibrary::GetKnockbackForce(const FGameplayEffectContex
 	return FVector();
 }
 
+bool UAuraAbilitySystemLibrary::IsRadialDamage(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AuraEffectContext->IsRadialDamage();
+	}
+	return false;
+}
+
+float UAuraAbilitySystemLibrary::GetRadialDamageInnerRadius(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AuraEffectContext->GetRadialDamageInnerRadius();
+	}
+	return 0.0f;
+}
+
+float UAuraAbilitySystemLibrary::GetRadialDamageOuterRadius(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AuraEffectContext->GetRadialDamageOuterRadius();
+	}
+	return 0.0f;
+}
+
+FVector UAuraAbilitySystemLibrary::GetRadialDamageOrigin(const FGameplayEffectContextHandle& EffectContextHandle)
+{
+	if (const FAuraGameplayEffectContext* AuraEffectContext = static_cast<const FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		return AuraEffectContext->GetRadialDamageOrigin();
+	}
+	return FVector();
+}
 
 void UAuraAbilitySystemLibrary::SetIsBlockedHit(FGameplayEffectContextHandle& EffectContextHandle, bool bInIsBlockedHit)
 {
@@ -366,6 +322,125 @@ void UAuraAbilitySystemLibrary::SetKnockbackForce(FGameplayEffectContextHandle& 
 		AuraEffectContext->SetKnockbackForce(InForce);
 	}
 }
+
+void UAuraAbilitySystemLibrary::SetIsRadialDamage(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, bool bInIsRadialDamage)
+{
+	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AuraEffectContext->SetIsRadialDamage(bInIsRadialDamage);
+	}
+}
+
+void UAuraAbilitySystemLibrary::SetRadialDamageInnerRadius(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, float InRadialDamageInnerRadius)
+{
+	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AuraEffectContext->SetRadialDamageInnerRadius(InRadialDamageInnerRadius);
+	}
+}
+
+void UAuraAbilitySystemLibrary::SetRadialDamageOuterRadius(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, float InRadialDamageOuterRadius)
+{
+	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AuraEffectContext->SetRadialDamageOuterRadius(InRadialDamageOuterRadius);
+	}
+}
+
+void UAuraAbilitySystemLibrary::SetRadialDamageOrigin(UPARAM(ref)FGameplayEffectContextHandle& EffectContextHandle, const FVector& InRadialDamageOrigin)
+{
+	if (FAuraGameplayEffectContext* AuraEffectContext = static_cast<FAuraGameplayEffectContext*>(EffectContextHandle.Get()))
+	{
+		AuraEffectContext->SetRadialDamageOrigin(InRadialDamageOrigin);
+	}
+}
+
+int32 UAuraAbilitySystemLibrary::GetXPRewardForClassAndLevel(const UObject* WorldContextObject, ECharacterClass InCharacterClass, int32 InLevel)
+{
+	UCharacterClassInfo* CharacterClassInfo = GetCharacterClassInfo(WorldContextObject);
+	if (CharacterClassInfo == nullptr) return 0;
+
+	const FCharacterClassDefaultInfo& Info = CharacterClassInfo->GetClassDefaultInfo(InCharacterClass);
+	const int32 XPReward = Info.XPCurve.GetValueAtLevel(InLevel);
+	return static_cast<int32>(XPReward);
+}
+
+FGameplayEffectContextHandle UAuraAbilitySystemLibrary::ApplyDamageEffect(const FDamageEffectParams& Params)
+{
+	const FAuraGameplayTags& GameplayTags = FAuraGameplayTags::Get();
+
+	FGameplayEffectContextHandle ContextHandle = Params.SourceASC->MakeEffectContext();
+	ContextHandle.AddSourceObject(Params.SourceASC->GetAvatarActor());
+
+	SetDeathImpulse(ContextHandle, Params.DeathImpulse);
+	SetKnockbackForce(ContextHandle, Params.KnockbackForce);
+
+	SetIsRadialDamage(ContextHandle, Params.bIsRadialDamage);
+	SetRadialDamageInnerRadius(ContextHandle, Params.RadialDamageInnerRadius);
+	SetRadialDamageOuterRadius(ContextHandle, Params.RadialDamageOuterRadius);
+	SetRadialDamageOrigin(ContextHandle, Params.RadialDamageOrigin);
+
+	const FGameplayEffectSpecHandle SpecHandle = Params.SourceASC->MakeOutgoingSpec(Params.DamageGameplayEffectClass, Params.AbiltyLevel, ContextHandle);
+
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, Params.DamageType, Params.BaseDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Chance, Params.DebuffChance);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Damage, Params.DebuffDamage);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Duration, Params.DebuffDuration);
+	UAbilitySystemBlueprintLibrary::AssignTagSetByCallerMagnitude(SpecHandle, GameplayTags.Debuff_Frequency, Params.DebuffFrequency);
+
+	Params.TargetASC->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	return ContextHandle;
+}
+
+TArray<FRotator> UAuraAbilitySystemLibrary::EvenlySpacedRotators(const FVector& Forward, const FVector& Axis, float Spread, int32 NumRotators)
+{
+	TArray<FRotator> Rotators;
+
+	const FVector LeftOfSpread = Forward.RotateAngleAxis(-Spread / 2.f, Axis);
+	const FVector RightOfSpread = Forward.RotateAngleAxis(Spread / 2.f, Axis);
+
+	if (NumRotators > 1)
+	{
+		const float DeltaSpread = Spread / (NumRotators - 1);
+		for (int32 i = 0; i < NumRotators; i++)
+		{
+			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, FVector::UpVector);
+			Rotators.Add(Direction.Rotation());
+		}
+	}
+	else
+	{
+		Rotators.Add(Forward.Rotation());
+	}
+
+	return Rotators;
+}
+
+TArray<FVector> UAuraAbilitySystemLibrary::EvenlyRotatedVectors(const FVector& Forward, const FVector& Axis, float Spread, int32 NumVectors)
+{
+	TArray<FVector> Vectors;
+
+	const FVector LeftOfSpread = Forward.RotateAngleAxis(-Spread / 2.f, Axis);
+	const FVector RightOfSpread = Forward.RotateAngleAxis(Spread / 2.f, Axis);
+
+	if (NumVectors > 1)
+	{
+		const float DeltaSpread = Spread / (NumVectors - 1);
+		for (int32 i = 0; i < NumVectors; i++)
+		{
+			const FVector Direction = LeftOfSpread.RotateAngleAxis(DeltaSpread * i, FVector::UpVector);
+			Vectors.Add(Direction);
+		}
+	}
+	else
+	{
+		Vectors.Add(Forward);
+	}
+
+	return Vectors;
+}
+
+
 
 void UAuraAbilitySystemLibrary::GetLivePlayersWithinRadius(const UObject* WorldContextObject, TArray<AActor*>& OutOverlappingActors,
 	const TArray<AActor*>& ActorsToIgnore, float Radius, const FVector& SphereOrigin)
