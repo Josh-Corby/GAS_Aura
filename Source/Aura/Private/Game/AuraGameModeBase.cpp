@@ -6,10 +6,7 @@
 
 void AAuraGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex)
 {
-	if (UGameplayStatics::DoesSaveGameExist(LoadSlot->LoadSlotName, SlotIndex))
-	{
-		UGameplayStatics::DeleteGameInSlot(LoadSlot->LoadSlotName, SlotIndex);
-	}
+	DeleteSlot(LoadSlot->LoadSlotName, SlotIndex);
 
 	USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(LoadScreenSaveGameClass);
 	ULoadScreenSaveGame* LoadScreenSaveGame = Cast<ULoadScreenSaveGame>(SaveGameObject);
@@ -32,4 +29,12 @@ ULoadScreenSaveGame* AAuraGameModeBase::GetSaveSlotData(const FString& SlotName,
 	}
 
 	return Cast<ULoadScreenSaveGame>(SaveGameObject);
+}
+
+void AAuraGameModeBase::DeleteSlot(const FString& SlotName, int32 SlotIndex)
+{
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, SlotIndex))
+	{
+		UGameplayStatics::DeleteGameInSlot(SlotName, SlotIndex);
+	}
 }
