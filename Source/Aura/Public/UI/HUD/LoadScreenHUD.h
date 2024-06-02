@@ -19,7 +19,7 @@ class AURA_API ALoadScreenHUD : public AHUD
 public:
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ULoadScreenWidget> LoadScreenWidgetClass;
+	TSubclassOf<UUserWidget> LoadScreenWidgetClass;
 
 	UPROPERTY(BlueprintReadOnly)
 	TObjectPtr<ULoadScreenWidget> LoadScreenWidget;
