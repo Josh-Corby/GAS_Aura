@@ -5,8 +5,7 @@
 
 void UMVVM_LoadSlot::InitializeSlot()
 {
-	// TODO: Check slot status based on loaded data
-	SetWidgetSwitcherIndex.Broadcast(1);
+	SetWidgetSwitcherIndex.Broadcast(SlotStatus.GetValue());
 }
 
 void UMVVM_LoadSlot::SetPlayerName(FString InPlayerName)
