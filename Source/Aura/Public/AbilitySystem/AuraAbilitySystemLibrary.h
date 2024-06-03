@@ -12,6 +12,7 @@ class UAbilitySystemComponent;
 class UAttributeMenuWidgetController;
 class UAbilityInfo;
 class UOverlayWidgetController;
+class ULootTiers;
 class ULoadScreenSaveGame;
 struct FWidgetControllerParams;
 struct FDamageEffectParams;
@@ -58,6 +59,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|CharacterClassDefaults")
 	static UAbilityInfo* GetAbilityInfo(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "AuraAbilitySystemLibrary|LootTiers")
+	static ULootTiers* GetLootTiers(const UObject* WorldContextObject);
 
 	/*
 	* Effect Context Getters

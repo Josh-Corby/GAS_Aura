@@ -7,6 +7,7 @@
 #include "Player/AuraPlayerState.h"
 #include "AuraGameplayTags.h"
 #include "UI/HUD/AuraHUD.h"
+#include "AbilitySystem/Data/LootTiers.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "UI/WidgetController/AuraWidgetController.h"
 #include "Game/LoadScreenSaveGame.h"
@@ -161,6 +162,13 @@ UAbilityInfo* UAuraAbilitySystemLibrary::GetAbilityInfo(const UObject* WorldCont
 	const AAuraGameModeBase* AuraGM = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
 	if (AuraGM == nullptr) return nullptr;
 	return AuraGM->AbilityInfo;
+}
+
+ULootTiers* UAuraAbilitySystemLibrary::GetLootTiers(const UObject* WorldContextObject)
+{
+	const AAuraGameModeBase* AuraGM = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(WorldContextObject));
+	if (AuraGM == nullptr) return nullptr;
+	return AuraGM->LootTiers;
 }
 
 bool UAuraAbilitySystemLibrary::IsBlockedHit(const FGameplayEffectContextHandle& EffectContextHandle)
