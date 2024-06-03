@@ -41,7 +41,7 @@ public:
 	virtual int32 GetSpellPoints_Implementation() const override;
 	void ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial) override;
 	void HideMagicCircle_Implementation() override;
-
+	virtual void SaveProgress_Implementation(const FName& CheckpointTag);
 	/** end Player Interface */
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
