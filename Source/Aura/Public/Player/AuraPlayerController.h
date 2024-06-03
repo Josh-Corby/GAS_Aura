@@ -17,6 +17,14 @@ class USplineComponent;
 class UDamageTextComponent;
 class UNiagaraSystem;
 struct FInputActionValue;
+
+enum class ETargettingStatus : uint8
+{
+	TargettingEnemy,
+	TargettingNonEnemy,
+	NotTargetting
+};
+
 /**
  * 
  */
@@ -58,9 +66,11 @@ private:
 	void Move(const FInputActionValue& InputActionValue);
 
 	void CursorTrace();
-	IHighlightInterface* LastActor;
-	IHighlightInterface* ThisActor;
+	AActor* LastActor;
+	AActor* ThisActor;
 	FHitResult CursorHit;
+	static void HighlightActor(AActor* InActor);
+	static void UnHighlighActor(AActor* InActor);
 
 	void AbilityInputTagPressed(FGameplayTag InputTag);
 	void AbilityInputTagReleased(FGameplayTag InputTag);
@@ -78,7 +88,7 @@ private:
 	float FollowTime = 0.f;
 	float ShortPressThreshold = 0.5f;
 	bool bAutoRunning = false;
-	bool bTargeting = false;
+	ETargettingStatus TargettingStatus = ETargettingStatus::NotTargetting;
 
 	UPROPERTY(EditDefaultsOnly)
 	float AutoRunAcceptanceRadius = 50.f;
