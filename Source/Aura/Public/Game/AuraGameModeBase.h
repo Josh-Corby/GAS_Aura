@@ -11,9 +11,8 @@ class UCharacterClassInfo;
 class UMVVM_LoadSlot;
 class USaveGame;
 class ULoadScreenSaveGame;
-/**
- * 
- */
+
+
 UCLASS()
 class AURA_API AAuraGameModeBase : public AGameModeBase
 {
@@ -31,6 +30,8 @@ public:
 	static void DeleteSlot(const FString& SlotName, int32 SlotIndex);
 	ULoadScreenSaveGame* RetrieveInGameSaveData() const;
 	void SaveInGameProgressData(ULoadScreenSaveGame* SaveObject);
+
+	void SaveWorldState(UWorld* World);
 
 	void TravelToMap(UMVVM_LoadSlot* Slot);
 

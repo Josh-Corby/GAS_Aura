@@ -26,5 +26,5 @@ bool ULoadScreenSaveGame::HasMap(const FString& InMapName) const
 		}
 	}
 
-	return false();
+	return false;
 }
