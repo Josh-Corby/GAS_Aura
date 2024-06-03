@@ -3,21 +3,22 @@
 
 #include "AbilitySystemComponent.h"
 #include "AbilitySystem/AuraAbilitySystemComponent.h"
+#include "AbilitySystem/AuraAttributeSet.h"
+#include "AbilitySystem/AuraAbilitySystemLibrary.h"
 #include "AbilitySystem/Data/LevelUpInfo.h"
+#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
+#include "AuraGameplayTags.h"
 #include "Camera/CameraComponent.h"
+#include "Game/AuraGameModeBase.h"
+#include "Game/LoadScreenSaveGame.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "NiagaraComponent.h"
+#include "Net/UnrealNetwork.h"
 #include "Player/AuraPlayerController.h"
 #include "Player/AuraPlayerState.h"
-#include "Net/UnrealNetwork.h"
-#include "AbilitySystem/Debuff/DebuffNiagaraComponent.h"
 #include "UI/HUD/AuraHUD.h"
-#include "Game/AuraGameModeBase.h"
-#include "Kismet/GameplayStatics.h"
-#include "Game/LoadScreenSaveGame.h"
-#include "AuraGameplayTags.h"
-#include "AbilitySystem/AuraAttributeSet.h"
 
 AAuraCharacter::AAuraCharacter()
 {
@@ -52,11 +53,7 @@ void AAuraCharacter::PossessedBy(AController* NewController)
 
 	// Init ability actor info for the Server
 	InitAbilityActorInfo();
-
 	LoadProgress();
-
-	//TODO: load in abilities from disk
-	AddCharacterAbilities();
 }
 
 void AAuraCharacter::OnRep_PlayerState()
@@ -102,7 +99,7 @@ void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 		if (AAuraPlayerState* AuraPlayerState = Cast<AAuraPlayerState>(GetPlayerState()))
 		{
 			SaveData->PlayerLevel = AuraPlayerState->GetPlayerLevel();
-			SaveData->XP = GetXP();
+			SaveData->XP = AuraPlayerState->GetXP();
 			SaveData->AttributePoints = AuraPlayerState->GetAttributePoints();
 			SaveData->SpellPoints = AuraPlayerState->GetSpellPoints();
 		}
@@ -125,14 +122,6 @@ void AAuraCharacter::LoadProgress()
 		ULoadScreenSaveGame* SaveData = AuraGameMode->RetrieveInGameSaveData();
 		if (SaveData == nullptr) return;
 
-		if (AAuraPlayerState* AuraPlayerState = Cast<AAuraPlayerState>(GetPlayerState()))
-		{
-			AuraPlayerState->SetLevel(SaveData->PlayerLevel);
-			AuraPlayerState->SetXP(SaveData->XP);
-			AuraPlayerState->SetAttributePoints(SaveData->AttributePoints);
-			AuraPlayerState->SetSpellPoints(SaveData->SpellPoints);
-		}
-
 		if (SaveData->bFirstTimeLoadIn)
 		{
 			InitializeDefaultAttributes();
@@ -140,7 +129,16 @@ void AAuraCharacter::LoadProgress()
 		}
 		else
 		{
+			//TODO: load in abilities from disk
+			if (AAuraPlayerState* AuraPlayerState = Cast<AAuraPlayerState>(GetPlayerState()))
+			{
+				AuraPlayerState->SetLevel(SaveData->PlayerLevel);
+				AuraPlayerState->SetXP(SaveData->XP);
+				AuraPlayerState->SetAttributePoints(SaveData->AttributePoints);
+				AuraPlayerState->SetSpellPoints(SaveData->SpellPoints);
+			}
 
+			UAuraAbilitySystemLibrary::InitializeDefaultAttributesFromSaveData(this, AbilitySystemComponent, SaveData);
 		}
 	}
 }

@@ -14,16 +14,22 @@ void AAuraGameModeBase::BeginPlay()
 
 void AAuraGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex)
 {
-	DeleteSlot(LoadSlot->GetLoadSlotName(), SlotIndex);
+	FString SlotName = LoadSlot->GetLoadSlotName();
+	if (UGameplayStatics::DoesSaveGameExist(SlotName, SlotIndex))
+	{
+		UGameplayStatics::DeleteGameInSlot(SlotName, SlotIndex);
+	}
 
 	USaveGame* SaveGameObject = UGameplayStatics::CreateSaveGameObject(LoadScreenSaveGameClass);
 	ULoadScreenSaveGame* LoadScreenSaveGame = Cast<ULoadScreenSaveGame>(SaveGameObject);
 	LoadScreenSaveGame->PlayerName = LoadSlot->GetPlayerName();
 	LoadScreenSaveGame->SaveSlotStatus = Taken;
+	LoadScreenSaveGame->SlotName = SlotName;
 	LoadScreenSaveGame->MapName = LoadSlot->GetMapName();
+	LoadScreenSaveGame->SlotIndex = SlotIndex;
 	LoadScreenSaveGame->PlayerStartTag = LoadSlot->PlayerStartTag;
 
-	UGameplayStatics::SaveGameToSlot(LoadScreenSaveGame, LoadSlot->GetLoadSlotName(), SlotIndex);
+	UGameplayStatics::SaveGameToSlot(LoadScreenSaveGame, SlotName, SlotIndex);
 }
 
 ULoadScreenSaveGame* AAuraGameModeBase::GetSaveSlotData(const FString& SlotName, int32 SlotIndex) const
@@ -39,6 +45,7 @@ ULoadScreenSaveGame* AAuraGameModeBase::GetSaveSlotData(const FString& SlotName,
 	}
 
 	ULoadScreenSaveGame* LoadScreenSaveGame = Cast<ULoadScreenSaveGame>(SaveGameObject);
+	
 	return LoadScreenSaveGame;
 }
 
@@ -53,20 +60,29 @@ void AAuraGameModeBase::DeleteSlot(const FString& SlotName, int32 SlotIndex)
 ULoadScreenSaveGame* AAuraGameModeBase::RetrieveInGameSaveData() const
 {
 	UAuraGameInstance* AuraGameInstance = Cast<UAuraGameInstance>(GetGameInstance());
-	const FString InGameLoadSlotName = AuraGameInstance->LoadSlotName;
-	const int32 InGameLoadSlotIndex = AuraGameInstance->LoadSlotIndex;
+	if (AuraGameInstance)
+	{
+		const FString InGameLoadSlotName = AuraGameInstance->LoadSlotName;
+		const int32 InGameLoadSlotIndex = AuraGameInstance->LoadSlotIndex;
 
-	return GetSaveSlotData(InGameLoadSlotName, InGameLoadSlotIndex);
+		ULoadScreenSaveGame* SaveGame = GetSaveSlotData(InGameLoadSlotName, InGameLoadSlotIndex);
+		return SaveGame;
+	}
+
+	return nullptr;
 }
 
-void AAuraGameModeBase::SaveInGameProgressData(ULoadScreenSaveGame* SaveObject) const
+void AAuraGameModeBase::SaveInGameProgressData(ULoadScreenSaveGame* SaveObject)
 {
 	UAuraGameInstance* AuraGameInstance = Cast<UAuraGameInstance>(GetGameInstance());
-	const FString InGameLoadSlotName = AuraGameInstance->LoadSlotName;
-	const int32 InGameLoadSlotIndex = AuraGameInstance->LoadSlotIndex;
+	if (AuraGameInstance)
+	{
+		const FString InGameLoadSlotName = AuraGameInstance->LoadSlotName;
+		const int32 InGameLoadSlotIndex = AuraGameInstance->LoadSlotIndex;
+		UGameplayStatics::SaveGameToSlot(SaveObject, InGameLoadSlotName, InGameLoadSlotIndex);
 
-	UGameplayStatics::SaveGameToSlot(SaveObject, InGameLoadSlotName, InGameLoadSlotIndex);
-	AuraGameInstance->PlayerStartTag = SaveObject->PlayerStartTag;
+		AuraGameInstance->PlayerStartTag = SaveObject->PlayerStartTag;
+	}
 }
 
 void AAuraGameModeBase::TravelToMap(UMVVM_LoadSlot* Slot)
