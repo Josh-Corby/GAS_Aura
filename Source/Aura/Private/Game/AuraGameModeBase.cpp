@@ -7,6 +7,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "Interaction/SaveInterface.h"
 #include "EngineUtils.h"
+#include "GameFramework/Character.h"
 #include "Serialization/ObjectAndNameAsStringProxyArchive.h"
 #include "Aura/AuraLogChannels.h"
 
@@ -30,6 +31,7 @@ void AAuraGameModeBase::SaveSlotData(UMVVM_LoadSlot* LoadSlot, int32 SlotIndex)
 	LoadScreenSaveGame->SaveSlotStatus = Taken;
 	LoadScreenSaveGame->SlotName = SlotName;
 	LoadScreenSaveGame->MapName = LoadSlot->GetMapName();
+	LoadScreenSaveGame->MapAssetName = LoadSlot->MapAssetName;
 	LoadScreenSaveGame->SlotIndex = SlotIndex;
 	LoadScreenSaveGame->PlayerStartTag = LoadSlot->PlayerStartTag;
 
@@ -194,6 +196,7 @@ void AAuraGameModeBase::TravelToMap(UMVVM_LoadSlot* Slot)
 {
 	const FString SlotName = Slot->GetLoadSlotName();
 	const int32 SlotIndex = Slot->SlotIndex;
+	const FString MapName = Slot->GetMapName();
 
 	UGameplayStatics::OpenLevelBySoftObjectPtr(Slot, Maps.FindChecked(Slot->GetMapName()));
 }
@@ -237,3 +240,10 @@ AActor* AAuraGameModeBase::ChoosePlayerStart_Implementation(AController* Player)
 	return nullptr;
 }
 
+void AAuraGameModeBase::PlayerDied(ACharacter* DeadCharacter)
+{
+	ULoadScreenSaveGame* SaveGame = RetrieveInGameSaveData();
+	if (!IsValid(SaveGame)) return;
+
+	UGameplayStatics::OpenLevel(DeadCharacter, FName(SaveGame->MapAssetName));
+}
