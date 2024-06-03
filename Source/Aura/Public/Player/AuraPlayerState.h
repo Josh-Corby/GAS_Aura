@@ -45,6 +45,8 @@ public:
 
 	void SetLevel(int32 InLevel);
 	void SetXP(int32 InXP);
+	void SetAttributePoints(int32 InAttributePoints);
+	void SetSpellPoints(int32 InSpellPoints);
 
 protected:
 	

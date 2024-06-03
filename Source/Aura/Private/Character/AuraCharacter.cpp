@@ -52,6 +52,10 @@ void AAuraCharacter::PossessedBy(AController* NewController)
 
 	// Init ability actor info for the Server
 	InitAbilityActorInfo();
+
+	LoadProgress();
+
+	//TODO: load in abilities from disk
 	AddCharacterAbilities();
 }
 
@@ -83,46 +87,6 @@ void AAuraCharacter::InitAbilityActorInfo()
 			AuraHUD->InitOverlay(AuraPlayerController, AuraPlayerState, AbilitySystemComponent, AttributeSet);
 		}
 	}
-	InitializeDefaultAttributes();
-}
-
-int32 AAuraCharacter::GetPlayerLevel_Implementation()
-{
-	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
-	check(AuraPlayerState);
-	return AuraPlayerState->GetPlayerLevel();
-}
-
-int32 AAuraCharacter::GetAttributePoints_Implementation() const
-{
-	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
-	check(AuraPlayerState);
-	return AuraPlayerState->GetAttributePoints();
-}
-
-int32 AAuraCharacter::GetSpellPoints_Implementation() const
-{
-	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
-	check(AuraPlayerState);
-	return AuraPlayerState->GetSpellPoints();
-}
-
-void AAuraCharacter::ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial)
-{
-	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
-	{
-		AuraPlayerController->ShowMagicCircle(DecalMaterial);
-		AuraPlayerController->bShowMouseCursor = false;
-	}
-}
-
-void AAuraCharacter::HideMagicCircle_Implementation()
-{
-	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
-	{
-		AuraPlayerController->HideMagicCircle();
-		AuraPlayerController->bShowMouseCursor = true;
-	}
 }
 
 void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
@@ -148,10 +112,70 @@ void AAuraCharacter::SaveProgress_Implementation(const FName& CheckpointTag)
 		SaveData->Resilience = UAuraAttributeSet::GetResilienceAttribute().GetNumericValue(GetAttributeSet());
 		SaveData->Vigor = UAuraAttributeSet::GetVigorAttribute().GetNumericValue(GetAttributeSet());
 
+		SaveData->bFirstTimeLoadIn = false;
 		AuraGameMode->SaveInGameProgressData(SaveData);
-
 	}
 }
+
+void AAuraCharacter::LoadProgress()
+{
+	AAuraGameModeBase* AuraGameMode = Cast<AAuraGameModeBase>(UGameplayStatics::GetGameMode(this));
+	if (AuraGameMode)
+	{
+		ULoadScreenSaveGame* SaveData = AuraGameMode->RetrieveInGameSaveData();
+		if (SaveData == nullptr) return;
+
+		if (AAuraPlayerState* AuraPlayerState = Cast<AAuraPlayerState>(GetPlayerState()))
+		{
+			AuraPlayerState->SetLevel(SaveData->PlayerLevel);
+			AuraPlayerState->SetXP(SaveData->XP);
+			AuraPlayerState->SetAttributePoints(SaveData->AttributePoints);
+			AuraPlayerState->SetSpellPoints(SaveData->SpellPoints);
+		}
+
+		if (SaveData->bFirstTimeLoadIn)
+		{
+			InitializeDefaultAttributes();
+			AddCharacterAbilities();
+		}
+		else
+		{
+
+		}
+	}
+}
+
+void AAuraCharacter::ShowMagicCircle_Implementation(UMaterialInterface* DecalMaterial)
+{
+	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
+	{
+		AuraPlayerController->ShowMagicCircle(DecalMaterial);
+		AuraPlayerController->bShowMouseCursor = false;
+	}
+}
+
+void AAuraCharacter::HideMagicCircle_Implementation()
+{
+	if (AAuraPlayerController* AuraPlayerController = Cast<AAuraPlayerController>(GetController()))
+	{
+		AuraPlayerController->HideMagicCircle();
+		AuraPlayerController->bShowMouseCursor = true;
+	}
+}
+
+void AAuraCharacter::MulticastLevelUpParticles_Implementation() const
+{
+	if (IsValid(LevelUpNiagaraComponent))
+	{
+		const FVector CameraLocation = TopDownCameraComponent->GetComponentLocation();
+		const FVector NiagaraSystemLocation = LevelUpNiagaraComponent->GetComponentLocation();
+		const FRotator ToCameraRotation = (CameraLocation - NiagaraSystemLocation).Rotation();
+		LevelUpNiagaraComponent->SetWorldRotation(ToCameraRotation);
+
+		LevelUpNiagaraComponent->Activate(true);
+	}
+}
+
 
 void AAuraCharacter::OnRep_Stunned()
 {
@@ -250,20 +274,29 @@ void AAuraCharacter::AddToPlayerLevel_Implementation(int32 InPlayerLevel)
 	}
 }
 
+int32 AAuraCharacter::GetPlayerLevel_Implementation()
+{
+	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	check(AuraPlayerState);
+	return AuraPlayerState->GetPlayerLevel();
+}
+
+int32 AAuraCharacter::GetAttributePoints_Implementation() const
+{
+	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	check(AuraPlayerState);
+	return AuraPlayerState->GetAttributePoints();
+}
+
+int32 AAuraCharacter::GetSpellPoints_Implementation() const
+{
+	const AAuraPlayerState* AuraPlayerState = GetPlayerState<AAuraPlayerState>();
+	check(AuraPlayerState);
+	return AuraPlayerState->GetSpellPoints();
+}
+
 void AAuraCharacter::LevelUp_Implementation()
 {
 	MulticastLevelUpParticles();
 }
 
-void AAuraCharacter::MulticastLevelUpParticles_Implementation() const
-{
-	if (IsValid(LevelUpNiagaraComponent))
-	{
-		const FVector CameraLocation = TopDownCameraComponent->GetComponentLocation();
-		const FVector NiagaraSystemLocation = LevelUpNiagaraComponent->GetComponentLocation();
-		const FRotator ToCameraRotation = (CameraLocation - NiagaraSystemLocation).Rotation();
-		LevelUpNiagaraComponent->SetWorldRotation(ToCameraRotation);
-
-		LevelUpNiagaraComponent->Activate(true);
-	}
-}

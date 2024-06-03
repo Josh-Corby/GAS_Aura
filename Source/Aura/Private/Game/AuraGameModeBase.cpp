@@ -3,8 +3,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "UI/ViewModel/MVVM_LoadSlot.h"
 #include "Game/LoadScreenSaveGame.h"
-#include "GameFramework/PlayerStart.h"
 #include "Game/AuraGameInstance.h"
+#include "GameFramework/PlayerStart.h"
 
 void AAuraGameModeBase::BeginPlay()
 {

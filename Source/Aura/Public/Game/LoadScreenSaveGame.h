@@ -42,6 +42,8 @@ public:
 	UPROPERTY()
 	TEnumAsByte<ESaveSlotStatus> SaveSlotStatus = Vacant;
 
+	bool bFirstTimeLoadIn = true;
+
 	/* Player */
 
 	UPROPERTY()
