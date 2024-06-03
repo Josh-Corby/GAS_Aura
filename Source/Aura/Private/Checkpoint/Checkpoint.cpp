@@ -28,34 +28,14 @@ ACheckpoint::ACheckpoint(const FObjectInitializer& ObjectInitializer)
 	MoveToComponent->SetupAttachment(GetRootComponent());
 }
 
-void ACheckpoint::LoadActor_Implementation()
-{
-	if (bReached)
-	{
-		HandleGlowEffects();
-	}
-}
-
-void ACheckpoint::SetMoveToLocation_Implementation(FVector& OutDestination)
-{
-	OutDestination = MoveToComponent->GetComponentLocation();
-}
-
-void ACheckpoint::HighlightActor_Implementation()
-{
-	CheckpointMesh->SetRenderCustomDepth(true);
-}
-
-void ACheckpoint::UnHighlightActor_Implementation()
-{
-	CheckpointMesh->SetRenderCustomDepth(false);
-}
-
 void ACheckpoint::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Sphere->OnComponentBeginOverlap.AddDynamic(this, &ACheckpoint::OnSphereOverlap);
+	if (bBindOverlapCallback)
+	{
+		Sphere->OnComponentBeginOverlap.AddDynamic(this, &ACheckpoint::OnSphereOverlap);
+	}
 }
 
 void ACheckpoint::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -80,4 +60,30 @@ void ACheckpoint::HandleGlowEffects()
 	UMaterialInstanceDynamic* DynamicMaterialInstance = UMaterialInstanceDynamic::Create(CheckpointMesh->GetMaterial(0), this);
 	CheckpointMesh->SetMaterial(0, DynamicMaterialInstance);
 	CheckpointReached(DynamicMaterialInstance);
+}
+
+void ACheckpoint::LoadActor_Implementation()
+{
+	if (bReached)
+	{
+		HandleGlowEffects();
+	}
+}
+
+void ACheckpoint::SetMoveToLocation_Implementation(FVector& OutDestination)
+{
+	OutDestination = MoveToComponent->GetComponentLocation();
+}
+
+void ACheckpoint::HighlightActor_Implementation()
+{
+	if (!bReached)
+	{
+		CheckpointMesh->SetRenderCustomDepth(true);
+	}
+}
+
+void ACheckpoint::UnHighlightActor_Implementation()
+{
+	CheckpointMesh->SetRenderCustomDepth(false);
 }
